@@ -36,7 +36,7 @@ th:first-child,td:first-child,.l{text-align:left}th{font-size:12px;color:var(--m
 .pg{display:flex;justify-content:space-between;align-items:center;padding-top:8px;color:var(--m)}
 .note{color:var(--m);font-size:12px;margin-top:14px}
 
-.mo,.nm small,.xl{}.mo{display:none}.nm small{display:none}
+.mo,.nm small,.xl{}.mo{display:none}.kw{display:none}.nm small{display:none}
 @media(max-width:720px){
  body{font-size:14px}
  header{padding:10px 14px;gap:10px;padding-top:max(10px,env(safe-area-inset-top))}
@@ -62,6 +62,7 @@ th:first-child,td:first-child,.l{text-align:left}th{font-size:12px;color:var(--m
  html,body{overflow-x:hidden}
  .card table th,.card table td,.dr table th,.dr table td{padding:6px 3px;font-size:12px}
  .card table th:nth-child(2),.card table td:nth-child(2),.dr table th:nth-child(2),.dr table td:nth-child(2){display:none}
+ .kw{display:block;font-size:11px;color:var(--m);font-weight:600}
  #et td[data-l]{font-size:12.5px;line-height:1.25}
  .note{font-size:11px}
  .pg button{padding:10px 18px}
@@ -86,7 +87,7 @@ th:first-child,td:first-child,.l{text-align:left}th{font-size:12px;color:var(--m
  <div class="grid g3" id="sv"></div>
  <h2 style="font-size:16px;margin:18px 0 8px">Danh sách nhân viên <span class="sub" id="cnt"></span></h2>
  <div class="card"><div class="tw"><table id="et"><thead></thead><tbody></tbody></table></div><div class="pg"><span id="pi"></span><span><button id="pp">‹</button> <button id="pn">›</button></span></div></div>
- <p class="note">Nguồn: File đánh giá (v15). %HT = Thực hiện ÷ Kế hoạch (định mức đã điều chỉnh theo hệ số lao động mới, ngày công), không giới hạn mức trần. Điểm dịch vụ = tổng điểm quy đổi các KPI của dịch vụ ÷ tổng trọng số dịch vụ. Tổng điểm &lt;50% Rất kém · 50–&lt;70% Kém · 70–&lt;80% Trung bình · 80–&lt;90% Khá · 90–100% Đạt · &gt;100% Xuất sắc.</p>
+ <p class="note">KPI mờ = trọng số 0%, không tính điểm cho kênh này. Nguồn: File đánh giá (v15). %HT = Thực hiện ÷ Kế hoạch (định mức đã điều chỉnh theo hệ số lao động mới, ngày công), không giới hạn mức trần. Điểm dịch vụ = tổng điểm quy đổi các KPI của dịch vụ ÷ tổng trọng số dịch vụ. Tổng điểm &lt;50% Rất kém · 50–&lt;70% Kém · 70–&lt;80% Trung bình · 80–&lt;90% Khá · 90–100% Đạt · &gt;100% Xuất sắc.</p>
 </main>
 <aside class="dr" id="dr"></aside>
 <script>
@@ -120,7 +121,7 @@ function render(){tabs();const R=rows();
   const ss=R.map(e=>svScore(e,g)).filter(v=>v!=null),a=ss.length?ss.reduce((x,y)=>x+y,0)/ss.length:null;
   const tr=idx.map(i=>{let th=0,kh=0;R.forEach(e=>{th+=e.k[i][0];kh+=e.k[i][1]});const p=kh>0?th/kh:null;const wt=R.length&&R[0]?R[0].k[i][2]:0;
    const wsum=R.reduce((s,e)=>s+e.k[i][2],0)/(R.length||1);
-   return `<tr><td>${D.kpis[i].n}</td><td>${(wsum*100).toFixed(0)}%</td><td>${fn(kh)}</td><td>${fn(th)}</td><td><b>${f1(p)}</b><div class="hb"><i style="width:${Math.min(100,(p||0)*100)}%;background:${p>=1?'var(--ok)':p>=.7?'var(--wr)':'var(--er)'}"></i></div></td></tr>`}).join('');
+   return `<tr><td>${D.kpis[i].n}<small class="kw">Trọng số ${(wsum*100).toFixed(0)}%</small></td><td>${(wsum*100).toFixed(0)}%</td><td>${fn(kh)}</td><td>${fn(th)}</td><td><b>${f1(p)}</b><div class="hb"><i style="width:${Math.min(100,(p||0)*100)}%;background:${p>=1?'var(--ok)':p>=.7?'var(--wr)':'var(--er)'}"></i></div></td></tr>`}).join('');
   return `<div class="card"><h3>${SVN[g]}</h3><div class="big">${f1(a)}</div><div class="sub">điểm bình quân dịch vụ · ${ss.length} NV có trọng số</div><div style="overflow-x:auto"><table style="margin-top:8px"><tr><th>KPI</th><th>Trọng số</th><th>Kế hoạch</th><th>Thực hiện</th><th>%HT</th></tr>${tr}</table></div></div>`}).join('');
  // table
  const cols=[['n','Họ tên'],['c','Mã'],['u','Đơn vị'],['ch','Kênh'],['g','KV'],['m','Di động'],['b','BRCĐ'],['d','DVS'],['w','Tổng điểm'],['x','Xếp loại']];
@@ -134,7 +135,7 @@ function render(){tabs();const R=rows();
  $('#et tbody').innerHTML=pg.map(e=>`<tr data-c="${e.c}"><td class="nm">${e.n}<small>${e.c} · ${e.u}</small></td><td class="l hm">${e.c}</td><td class="l hm">${e.u}</td><td class="l" data-l="Kênh">${chOf[e.ch].label}</td><td data-l="KV">${e.g}</td><td data-l="Di động">${f1(e._s.m)}</td><td data-l="BRCĐ">${f1(e._s.b)}</td><td data-l="DVS">${f1(e._s.d)}</td><td data-l="Tổng điểm"><b>${f1(e.w)}</b></td><td class="xl"><span class="pill" style="background:${COL[e.x]||'#888'}">${e.x||'–'}</span></td></tr>`).join('');
  $('#cnt').textContent=`(${R.length})`;$('#pi').textContent=`Trang ${S.page+1}/${pages}`;S.R=R}
 function detail(c){const e=M().emps.find(x=>x.c===c);if(!e)return;
- const rows=SV.map(g=>`<tr><td colspan="5" style="background:#eef3fa;font-weight:600;text-align:left">${SVN[g]} – ${f1(svScore(e,g))}</td></tr>`+D.kpis.map((k,i)=>k.g!==g?'':`<tr><td>${k.n}</td><td>${(e.k[i][2]*100).toFixed(0)}%</td><td>${fn(e.k[i][1])}</td><td>${fn(e.k[i][0])}</td><td><b>${f1(pct(e.k[i]))}</b></td></tr>`).join('')).join('');
+ const rows=SV.map(g=>`<tr><td colspan="5" style="background:#eef3fa;font-weight:600;text-align:left">${SVN[g]} – ${f1(svScore(e,g))}</td></tr>`+D.kpis.map((k,i)=>k.g!==g?'':`<tr style="${e.k[i][2]?'':'opacity:.45'}"><td>${k.n}<small class="kw">Trọng số ${(e.k[i][2]*100).toFixed(0)}%</small></td><td>${(e.k[i][2]*100).toFixed(0)}%</td><td>${fn(e.k[i][1])}</td><td>${fn(e.k[i][0])}</td><td><b>${f1(pct(e.k[i]))}</b></td></tr>`).join('')).join('');
  $('#dr').innerHTML=`<button class="x" onclick="$('#dr').classList.remove('on')">Đóng</button><h2>${e.n}</h2><div class="sub">${e.c} · ${e.u} · ${e.p||''}<br>${chOf[e.ch].label} · Nhóm KV ${e.g} · Vào VNPT: ${e.j||'–'}</div>
  <div class="card" style="margin:12px 0;background:#f2f7fd"><h3>Đánh giá chung tất cả dịch vụ</h3><span class="big">${f1(e.w)}</span> <span class="pill" style="background:${COL[e.x]||'#888'}">${e.x||'–'}</span><div class="sub">Vào VNPT ${e.j||'–'} · hệ số định mức theo thời gian làm việc: ${((e.fn??1)*100).toFixed(0)}%</div></div>
  <div style="overflow-x:auto"><table><tr><th>KPI</th><th>Trọng số</th><th>Kế hoạch</th><th>Thực hiện</th><th>%HT</th></tr>${rows}</table></div>`;$('#dr').classList.add('on')}
